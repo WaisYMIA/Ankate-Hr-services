@@ -1,33 +1,24 @@
 # Ankate Consulting website (GitHub Pages version)
 
-Static website for Ankate Consulting Ltd, ready to host on GitHub Pages. No build step and no server code.
+Static website for Ankate Consulting Ltd, ready to host on GitHub Pages. No server code is needed.
 
-## Publish on GitHub Pages
-1. Create a new GitHub repository (for example `ankate-consulting`) and upload **the contents of this folder** (not the folder itself), including the hidden `.nojekyll` file.
-2. In the repository go to **Settings > Pages**. Under **Build and deployment** choose **Deploy from a branch**, branch `main`, folder `/ (root)`, then **Save**.
-3. After a minute the site is live at `https://YOUR-USERNAME.github.io/REPOSITORY-NAME/`.
+## Publish
+1. Create a repository and upload the contents of this folder (keep the folders and the hidden `.github` and `.nojekyll` items). Alternatively upload `site.zip` with the workflow from the repair package.
+2. In **Settings > Pages**, set **Source** to **GitHub Actions**. The included workflow publishes the site on every change.
+3. The site is live at `https://YOUR-USERNAME.github.io/REPOSITORY-NAME/`.
 
-## Make the forms work (required)
-GitHub Pages cannot run PHP, so both forms send to [Formspree](https://formspree.io) (free plan available).
-1. Create two Formspree forms (contact and newsletter) that deliver to `info@ankateconsulting.co.ke`.
-2. In the three files `index.html`, `contact.html` and `insights.html`, find and replace:
-   - `YOUR_CONTACT_FORM_ID` with the contact form's ID
-   - `YOUR_NEWSLETTER_FORM_ID` with the newsletter form's ID
-3. Until you do this, the forms show an error message with the email, phone and WhatsApp details.
+## Make the forms work
+GitHub Pages cannot run PHP, so the forms send to [Formspree](https://formspree.io). Create four forms (enquiry, newsletter, job applications and call bookings) and replace `YOUR_CONTACT_FORM_ID`, `YOUR_NEWSLETTER_FORM_ID`, `YOUR_APPLICATION_FORM_ID` and `YOUR_BOOKING_FORM_ID` in every page that contains them. Search the files for `YOUR_` to find them all (they are in `index.html`, `contact.html`, `insights.html`, `jobs.html`, `resources.html`, `unsubscribed.html` and the files in `jobs/`).
+Until you do, visitors see a message with the email, phone and WhatsApp details.
 
-## Use the real domain (optional)
-- Add a file named `CNAME` containing `www.ankateconsulting.co.ke`, then set the DNS records GitHub lists under **Settings > Pages > Custom domain** and tick **Enforce HTTPS**.
-- Canonical tags, the sitemap and social tags already point to `https://www.ankateconsulting.co.ke`. If the site stays on `github.io`, change that address in the HTML files and in `sitemap.xml` and `robots.txt`.
+## Custom domain
+Add a file named `CNAME` containing `www.ankateconsulting.co.ke`, set the DNS records GitHub lists under Settings > Pages, and tick Enforce HTTPS.
 
 ## Differences from the cPanel version
-- No PHP handlers, `.htaccess`, server-side logging or security headers (GitHub Pages does not support them). GitHub provides HTTPS.
-- Forms use Formspree, and the privacy policy says so. Have the policy reviewed for the Kenya Data Protection Act 2019.
-- `404.html` works on both `github.io/REPOSITORY-NAME/` and a custom domain.
+The cPanel version adds server-side email templates, double opt-in newsletter, first-party analytics and the dashboard, and server-side spam checks. On GitHub Pages, spam filtering and email are handled by Formspree, and analytics can be added with Plausible in the source package settings.
 
-## Still to replace before launch
-- Founder certificate no. `CHRP-XXXX-XXXX` and IHRM membership no. `IHRM-XXXXX` (placeholders on `about.html`), and the sample "10+ years" and expertise list.
-- Phone calls: +254 705 914 714. WhatsApp: +254 728 907 973. Office hours: Mon to Fri and Sat, 8:00 am to 5:00 pm.
-- A high-resolution or vector version of the J.K. Mugo & Associates logo (current file is a cleaned-up redraw of a 200px original).
+## Job applications on GitHub Pages
+Because GitHub Pages cannot store files, applicants share a link to their CV (Google Drive, Dropbox or OneDrive) or email it using the button on each vacancy. The cPanel version accepts direct CV uploads.
 
-## Interactive features
-The site includes a free HR health check (`hr-health-check.html`), scroll animations, inline form validation and a mobile-friendly menu. These work on GitHub Pages without any setup. Optional analytics and a pricing section are switched on in `config.json` of the source package, then rebuild.
+## What the GitHub version does not include
+GitHub Pages cannot run server code, so the employer portal, applicant status tracking and live booking availability are available on the cPanel version only. On GitHub the booking page works as a request form that follows your office hours, and your team confirms the time by email.
