@@ -1,0 +1,4 @@
+Contact: mailto:info@ankateconsulting.co.ke
+Expires: 2027-10-09T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.ankateconsulting.co.ke/.well-known/security.txt
