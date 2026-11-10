@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan Illustrator — Admin</title>
+<style>
+  :root{
+    --maroon:#7c2434; --maroon-dark:#4c1520; --gold:#b8863a; --gold-light:#e4c988;
+    --bg:#f6f3ee; --card:#ffffff; --ink:#2a2422; --muted:#6b655f; --line:#e7e0d6;
+    --ok:#2f7a4f; --err:#b3261e;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.2px;}
+  header .role{font-size:12px;opacity:.85;}
+  #logoutBtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;}
+  #logoutBtn:hover{background:rgba(255,255,255,.25);}
+  main{max-width:980px;margin:0 auto;padding:20px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;}
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--maroon-dark);}
+  .card h3{font-size:13px;margin:18px 0 10px;color:var(--muted);text-transform:none;}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;}
+  input[type=text],input[type=email],input[type=password],input[type=number],textarea,select{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fdfcfa;
+  }
+  textarea{min-height:110px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;}
+  input[type=color]{width:52px;height:34px;padding:2px;border:1px solid var(--line);border-radius:6px;vertical-align:middle;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:160px;}
+  button.primary{background:var(--maroon);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;margin-top:12px;}
+  button.primary:hover{background:var(--maroon-dark);}
+  button.ghost{background:transparent;color:var(--maroon);border:1px solid var(--maroon);padding:7px 13px;border-radius:8px;font-size:13px;cursor:pointer;}
+  button.ghost:hover{background:#faf0f0;}
+  button.small{padding:5px 10px;font-size:12px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:12px;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover{background:#faf7f2;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;}
+  .badge.yes{background:#e3f2e8;color:var(--ok);}
+  .badge.no{background:#f7e9e8;color:var(--err);}
+  .badge.active{background:#fbf1dd;color:#8a6412;}
+  .msg{font-size:13px;padding:9px 12px;border-radius:8px;margin-top:10px;}
+  .msg.ok{background:#e3f2e8;color:var(--ok);}
+  .msg.err{background:#f7e9e8;color:var(--err);}
+  .muted{color:var(--muted);font-size:12.5px;}
+  .pill-select{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .pill{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;cursor:pointer;background:#fff;font-family:inherit;}
+  .pill.active{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));}
+  #loginScreen .box{background:#fff;padding:32px;border-radius:14px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  #loginScreen h1{font-size:18px;color:var(--maroon-dark);margin:0 0 4px;}
+  #loginScreen p{font-size:12.5px;color:var(--muted);margin:0 0 20px;}
+  .hidden{display:none !important;}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fdfcfa;}
+  .tile .n{font-size:22px;font-weight:700;color:var(--maroon-dark);}
+  .tile .l{font-size:12px;color:var(--muted);}
+  .barrow{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:4px 0;}
+  .barrow .bl{width:150px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barrow .bar{height:12px;background:var(--maroon);border-radius:6px;min-width:2px;}
+  .barrow .bn{color:var(--muted);}
+  .kv{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;font-size:13px;}
+  .kv div.k{color:var(--muted);}
+  .divider{height:1px;background:var(--line);margin:16px 0;}
+  .scenario-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;}
+  .top-tabs{display:flex;gap:4px;margin-bottom:18px;}
+  .top-tabs button{background:transparent;border:none;padding:9px 16px;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .top-tabs button.active{color:var(--maroon-dark);border-bottom-color:var(--maroon);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="box" id="loginBox">
+    <h1>Plan Illustrator</h1>
+    <p>Admin console — sign in to manage companies, products, and rate data.</p>
+    <label for="loginEmail">Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="username">
+    <label for="loginPassword">Password</label>
+    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    <button class="primary" id="loginBtn" style="width:100%;">Sign in</button>
+    <div id="loginMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="showForgotLink" style="font-size:12.5px;color:var(--maroon);">Forgot password?</a></p>
+  </div>
+  <div class="box hidden" id="forgotBox">
+    <h1>Reset your password</h1>
+    <p>Enter your admin email and we'll send a reset link.</p>
+    <label for="forgotEmail">Email</label>
+    <input type="email" id="forgotEmail" placeholder="admin@example.com" autocomplete="username">
+    <button class="primary" id="forgotBtn" style="width:100%;">Send reset link</button>
+    <div id="forgotMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="backToLoginLink" style="font-size:12.5px;color:var(--maroon);">Back to sign in</a></p>
+  </div>
+  <div class="box hidden" id="resetBox">
+    <h1>Set a new password</h1>
+    <p id="resetForEmail" style="margin:0 0 20px;"></p>
+    <label for="resetNewPassword">New password (at least 8 characters)</label>
+    <input type="password" id="resetNewPassword" autocomplete="new-password">
+    <button class="primary" id="resetBtn" style="width:100%;">Set new password</button>
+    <div id="resetMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="backToLoginLink2" style="font-size:12.5px;color:var(--maroon);">Back to sign in</a></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div>
+      <h1>Plan Illustrator — Admin</h1>
+      <div class="role" id="roleLine"></div>
+    </div>
+    <button id="logoutBtn">Sign out</button>
+  </header>
+  <main>
+    <div class="top-tabs" id="topTabs">
+      <button data-tab="companies" class="active">Companies</button>
+      <button data-tab="branding">Branding</button>
+      <button data-tab="products">Product lines</button>
+      <button data-tab="agents">Agents</button>
+      <button data-tab="leads">Leads</button>
+      <button data-tab="leaderboard">Leaderboard</button>
+      <button data-tab="quotes">Quote trail</button>
+      <button data-tab="usage">Usage</button>
+      <button data-tab="feedback">Feedback</button>
+      <button data-tab="updates">Updates</button>
+      <button data-tab="sms">Login &amp; SMS</button>
+      <button data-tab="admins">Admin users</button>
+      <button data-tab="account">My account</button>
+    </div>
+
+    <!-- COMPANIES TAB (superadmin only) -->
+    <div id="tab-companies" class="tabpane">
+      <div class="card" id="superadminOnlyCreate">
+        <h2>Create a company</h2>
+        <div class="row">
+          <div><label for="newCoName">Company name</label><input type="text" id="newCoName" placeholder="e.g. Acme Insurance"></div>
+          <div><label for="newCoSlug">Slug (used in URLs, lowercase-hyphenated)</label><input type="text" id="newCoSlug" placeholder="acme-insurance"></div>
+        </div>
+        <button class="primary" id="createCoBtn">Create company</button>
+        <div id="createCoMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Companies</h2>
+        <table id="companiesTable"><thead><tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="companiesEmptyMsg"></p>
+      </div>
+    </div>
+
+    <!-- BRANDING TAB -->
+    <div id="tab-branding" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="brandingCoSelect">Working on</label>
+        <select id="brandingCoSelect"></select>
+      </div>
+      <div class="card" id="brandingForm">
+        <h2>White-label branding</h2>
+        <div class="row">
+          <div><label for="brName">Display name</label><input type="text" id="brName"></div>
+          <div><label for="brLogo">Logo URL</label><input type="text" id="brLogo" placeholder="https://..."></div>
+        </div>
+        <div class="row">
+          <div><label for="brPrimary">Primary color</label><input type="color" id="brPrimary"></div>
+          <div><label for="brSecondary">Secondary color</label><input type="color" id="brSecondary"></div>
+          <div><label for="brAccent">Accent color</label><input type="color" id="brAccent"></div>
+        </div>
+        <div class="row">
+          <div><label for="brCurrency">Currency code</label><input type="text" id="brCurrency" placeholder="KES" maxlength="3" style="text-transform:uppercase"></div>
+          <div><label for="brLocale">Locale</label><input type="text" id="brLocale" placeholder="en-KE"></div>
+        </div>
+        <p style="font-size:0.85em;color:#666;margin-top:-6px">
+          Currency and locale control number/currency display formatting only. They do not change the
+          underlying rate tables or tax rules (e.g. the Kenya Revenue Authority relief calculation),
+          which are specific to this product's Kenyan data and would need separate work to support
+          another market.
+        </p>
+        <label for="brFooter">Footer / contact line (printed on illustrations)</label>
+        <input type="text" id="brFooter" placeholder="e.g. Acme Insurance Ltd · Nairobi · support@acme.co.ke">
+        <label for="brDisclaimer">Disclaimer text (printed on illustrations)</label>
+        <textarea id="brDisclaimer" placeholder="This illustration is indicative and not a contractual document..."></textarea>
+        <button class="primary" id="saveBrandingBtn">Save branding</button>
+        <div id="brandingMsg"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT LINES TAB -->
+    <div id="tab-products" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="productsCoSelect">Working on</label>
+        <select id="productsCoSelect"></select>
+      </div>
+      <div class="card">
+        <h2>Add a product line</h2>
+        <div class="row">
+          <div>
+            <span id="engineTypeLabel" class="flabel" style="display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;">Engine type</span>
+            <div class="pill-select" id="engineTypePicker" role="radiogroup" aria-labelledby="engineTypeLabel">
+              <button type="button" class="pill active" role="radio" aria-checked="true" data-val="fanaka">Fanaka</button>
+              <button type="button" class="pill" role="radio" aria-checked="false" data-val="faida">Faida (unit-linked)</button>
+              <button type="button" class="pill" role="radio" aria-checked="false" data-val="smartsave">Smart Save/Scholar</button>
+            </div>
+          </div>
+          <div><label for="newLineName">Display name</label><input type="text" id="newLineName" placeholder="e.g. Fanaka Education Plan"></div>
+        </div>
+        <button class="primary" id="createLineBtn">Add product line</button>
+        <div id="createLineMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Product lines</h2>
+        <table id="linesTable"><thead><tr><th>Name</th><th>Engine</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="linesEmptyMsg"></p>
+      </div>
+      <div class="card hidden" id="versionsCard">
+        <h2 id="versionsTitle">Rate data versions</h2>
+        <h3>Scan a workbook (optional — auto-fills the rate data below)</h3>
+        <p class="muted">Upload the original .xlsx/.xlsm. The scanner looks for a flat rate table (age/term/rate-style columns) and extracts it automatically; anything it can't confidently map is listed as a warning for you to fill in by hand. This drafts the JSON below — it never uploads anything by itself.</p>
+        <input type="file" id="workbookFile" accept=".xlsx,.xlsm,.xls">
+        <button class="ghost small" id="scanWorkbookBtn" style="margin-top:10px;">Scan workbook</button>
+        <div id="scanMsg"></div>
+        <div id="scanPreview" class="hidden" style="margin-top:12px;">
+          <h3>Sheets found</h3>
+          <div id="scanSheetsSummary" class="muted" style="font-size:12.5px;"></div>
+        </div>
+
+
+        <div class="divider"></div>
+        <h3>Rates editor</h3>
+        <p class="muted">Change a rate or setting without a spreadsheet. Browse the current data, pick a single value, enter the new one, and add it to the list. Nothing goes live until you run the <strong>impact report</strong> (it re-prices sample quotes before and after) and the change is <strong>approved</strong> — by a different administrator when there are two or more.</p>
+        <div id="edCrumbs" style="font-size:13px;margin:6px 0;"></div>
+        <div id="edList" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;"></div>
+        <div id="edPending" style="margin-top:10px;"></div>
+        <label for="edSummary">Why is this changing? (kept in the approval record)</label>
+        <input type="text" id="edSummary" maxlength="400" placeholder="e.g. Tax relief cap raised per Finance Act 2026">
+        <button class="primary" id="edDraftBtn">Create draft version</button>
+        <div id="edMsg"></div>
+        <div id="edDetail" class="hidden" style="margin-top:12px;"></div>
+
+        <div class="divider"></div>
+        <h3>Upload a new version</h3>
+        <label for="newVersionFilename">Source filename (for your records — e.g. the original workbook name)</label>
+        <input type="text" id="newVersionFilename" placeholder="FANAKA_2026.xlsm">
+        <label for="newVersionData">Rate data (JSON) — paste the structured data extracted from the workbook, or scan one above</label>
+        <textarea id="newVersionData" placeholder='{"plans": [...], "prates": [...]}'></textarea>
+        <label for="newVersionNotes">Mapping notes (optional — what you changed / how it was derived)</label>
+        <input type="text" id="newVersionNotes">
+        <button class="primary" id="uploadVersionBtn">Upload version</button>
+        <div id="uploadVersionMsg"></div>
+
+        <div class="divider"></div>
+        <h3>Existing versions</h3>
+        <table id="versionsTable"><thead><tr><th>#</th><th>Source</th><th>Validated</th><th>Status</th><th>Uploaded</th><th></th></tr></thead><tbody></tbody></table>
+
+        <div class="divider"></div>
+        <div id="validatePanel" class="hidden">
+          <h3>Validate version <span id="validatingVersionLabel"></span></h3>
+          <p class="muted">A version cannot be activated until it reproduces at least one real reference scenario exactly. Enter the scenario's input and the figures from the real printed illustration PDF it came from.</p>
+          <div id="scenarioRows"></div>
+          <button class="ghost small" id="addScenarioBtn">+ Add scenario</button>
+          <br>
+          <button class="primary" id="runValidateBtn">Run validation</button>
+          <div id="validateMsg"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- LEADS TAB -->
+    <div id="tab-leads" class="tabpane hidden">
+      <div class="card"><h2>Active company</h2><label for="leadsCoSelect">Working on</label><select id="leadsCoSelect"></select></div>
+      <div class="card">
+        <h2>Leads from agents</h2>
+        <p class="muted">Quotes agents have handed to the sales / underwriting team. Each lead was marked as "client agreed to be contacted". New leads are also emailed to the leads address on the server.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><select id="leadsStatus" style="width:auto;"><option value="">All statuses</option><option>new</option><option>contacted</option><option>quoted</option><option>won</option><option>lost</option></select><button class="ghost small" id="leadsCsvBtn">Download CSV</button></div>
+        <table id="leadsTable"><thead><tr><th>Created</th><th>Client</th><th>Contact</th><th>Product</th><th>Agent</th><th>Needs / note</th><th>Status</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="leadsEmpty"></p>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="tab-leaderboard" class="tabpane hidden">
+      <div class="card"><h2>Active company</h2><label for="boardCoSelect">Working on</label><select id="boardCoSelect"></select></div>
+      <div class="card">
+        <h2>Monthly targets (per agent)</h2>
+        <p class="muted">Leave a target at 0 to ignore it. Agents see their own progress against these numbers in the app, never other agents' figures.</p>
+        <div class="row"><div><label for="tgCalcs">Calculations</label><input type="number" id="tgCalcs" min="0"></div><div><label for="tgPrints">Illustrations printed / shared</label><input type="number" id="tgPrints" min="0"></div><div><label for="tgLeads">Leads handed over</label><input type="number" id="tgLeads" min="0"></div></div>
+        <button class="primary" id="tgSaveBtn">Save targets</button><div id="tgMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Leaderboard</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><select id="boardPeriod" style="width:auto;"><option value="month">This month</option><option value="week">This week</option></select><button class="ghost small" id="boardCsvBtn">Download CSV</button></div>
+        <p class="muted">Score = calculations + 3 × illustrations printed + 10 × leads. Verified, active agents only.</p>
+        <table id="boardTable"><thead><tr><th>#</th><th>Agent</th><th>Group</th><th>Calcs</th><th>Printed</th><th>Leads</th><th>Score</th><th>Target</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="boardEmpty"></p>
+      </div>
+    </div>
+
+    <!-- QUOTE TRAIL TAB -->
+    <div id="tab-quotes" class="tabpane hidden">
+      <div class="card"><h2>Active company</h2><label for="quotesCoSelect">Working on</label><select id="quotesCoSelect"></select></div>
+      <div class="card">
+        <h2>Compliance trail</h2>
+        <p class="muted">Every illustration an agent printed or shared: which product and inputs, which rate-table version and app version it came from, and the terms version in force. Client names, phone numbers and dates of birth are never recorded here.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><select id="quotesDays" style="width:auto;"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="365">Last year</option></select><button class="ghost small" id="quotesCsvBtn">Download CSV</button></div>
+        <table id="quotesTable"><thead><tr><th>When</th><th>Agent</th><th>Product</th><th>Action</th><th>Rates</th><th>App</th><th>Lang</th><th>Inputs</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="quotesEmpty"></p>
+      </div>
+    </div>
+
+    <!-- LOGIN & SMS TAB -->
+    <div id="tab-sms" class="tabpane hidden">
+      <div class="card"><h2>Active company</h2><label for="smsCoSelect">Working on</label><select id="smsCoSelect"></select></div>
+      <div class="card">
+        <h2>Login codes by SMS (Africa's Talking)</h2>
+        <p class="muted">Until you switch this on, login codes are only written to the SMS log and shown on screen in test mode — nothing is sent to phones. Fill in your Africa's Talking details, send yourself a test, then tick the box to go live. The API key is stored encrypted on the server and is never shown again.</p>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0;"><input type="checkbox" id="smsEnabled" style="width:auto;margin-top:3px;"><span><strong>Send login codes as real SMS (live)</strong></span></label>
+        <div class="row"><div><label for="smsUser">Africa's Talking username</label><input type="text" id="smsUser" autocomplete="off"></div><div><label for="smsKey">API key <span class="muted" id="smsKeyState"></span></label><input type="password" id="smsKey" autocomplete="new-password" placeholder="Leave blank to keep the saved key"></div><div><label for="smsSender">Sender ID (optional, max 11 characters)</label><input type="text" id="smsSender" maxlength="11"></div></div>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0;"><input type="checkbox" id="smsFallback" style="width:auto;margin-top:3px;" checked><span>If an SMS cannot be sent, email the code instead (when the agent has an email on file)</span></label>
+        <button class="primary" id="smsSaveBtn">Save</button> <span class="muted" id="smsActive"></span><div id="smsMsg"></div>
+        <div class="divider"></div>
+        <h3>Send a test message</h3>
+        <div class="row"><div><label for="smsTestPhone">Phone</label><input type="tel" id="smsTestPhone" placeholder="07…"></div></div>
+        <button class="ghost small" id="smsTestBtn">Send test</button><div id="smsTestMsg"></div>
+      </div>
+    </div>
+
+    <!-- AGENTS TAB -->
+    <div id="tab-agents" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="agentsCoSelect">Working on</label>
+        <select id="agentsCoSelect"></select>
+      </div>
+
+      <div class="card">
+        <h2>Add agents from a spreadsheet</h2>
+        <p class="muted">Optional. Agents can still register themselves from the app; this only pre-registers people you already know. Imported agents still have to confirm their phone with a login code the first time. Save your sheet as CSV (columns: Name, Phone, Email, Agency code, Group) and choose it here. <a href="#" id="importTemplateLink">Download a template</a>.</p>
+        <input type="file" id="importFile" accept=".csv,text/csv">
+        <button class="ghost small" id="importPreviewBtn" style="margin-top:10px;">Check the file</button>
+        <button class="primary" id="importRunBtn" style="display:none;">Import these agents</button>
+        <div id="importMsg"></div>
+        <div id="importResult"></div>
+      </div>
+      <div class="card">
+        <h2>Registered agents</h2>
+        <div id="bulkBar" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 10px;"><label style="margin:0;font-size:12.5px;">Group</label><select id="agentGroupFilter" style="width:auto;min-width:140px;"></select><span class="muted" id="bulkCount">0 selected</span><button class="ghost small" id="bulkEnable">Enable selected</button><button class="ghost small" id="bulkDisable">Disable selected</button><input type="text" id="bulkGroupName" placeholder="Group name" maxlength="60" style="width:150px;"><button class="ghost small" id="bulkSetGroup">Set group</button></div>
+        <table id="agentsTable"><thead><tr><th><input type="checkbox" id="agentsSelectAll" style="width:auto;" aria-label="Select all"></th><th>Group</th><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Verified</th><th>Terms accepted</th><th>Registered</th><th>Access</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="agentsEmptyMsg"></p>
+      </div>
+      <div class="card">
+        <h2>SMS outbox <span class="muted" style="font-weight:400;">— monitoring for OTP delivery</span></h2>
+        <p class="muted">In development (no real SMS gateway configured), this is the actual delivery mechanism — codes appear here instead of on a phone. Once a real provider (e.g. Africa's Talking) is configured in production, this becomes a send log; message bodies still appear here for audit, since whoever can see this screen is already an authenticated admin.</p>
+        <table id="outboxTable"><thead><tr><th>Phone</th><th>Message</th><th>Provider</th><th>Status</th><th>Sent</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="outboxEmptyMsg"></p>
+        <button class="ghost small" id="refreshOutboxBtn">Refresh</button>
+      </div>
+    </div>
+
+    <!-- USAGE TAB -->
+    <div id="tab-usage" class="tabpane hidden">
+      <div class="card">
+        <h2>Usage across agents</h2>
+        <div class="row">
+          <div><label for="usageCoSelect">Company</label><select id="usageCoSelect"></select></div>
+          <div><label for="usageDays">Period</label>
+            <select id="usageDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="ghost" id="usageRefreshBtn">Refresh</button>
+          <button class="ghost" id="usageCsvBtn">Download agents report (CSV)</button>
+          <button class="ghost" id="usageEmailBtn">Email me this summary</button>
+        </div>
+        <div id="usageMsg"></div>
+        <p class="muted" style="margin-top:10px;">Collected only from agents who accepted the data &amp; usage clause in the Terms. Client names, dates of birth and amounts are never recorded.</p>
+      </div>
+      <div class="card"><h2>Summary</h2><div id="usageTiles" class="tiles"></div></div>
+      <div class="row" style="gap:18px;">
+        <div class="card" style="flex:1;min-width:260px;"><h2>Calculations by product</h2><div id="usageProducts"></div></div>
+        <div class="card" style="flex:1;min-width:260px;"><h2>App versions in use</h2><div id="usageVersions"></div><div id="usageErrors"></div></div>
+      </div>
+      <div class="card"><h2>Daily activity</h2><div id="usageDaily"></div></div>
+      <div class="card">
+        <h2>Agents</h2>
+        <p class="muted">Click an agent for their individual usage report.</p>
+        <div style="overflow-x:auto;"><table id="usageAgentsTable"><thead><tr><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Last seen</th><th>Active days</th><th>Calcs</th><th>Prints</th><th>Diagnoses</th><th>Version</th><th>Installed</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="usageAgentsEmpty"></p>
+      </div>
+      <div class="card hidden" id="agentReportCard">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><h2 id="agentReportTitle" style="margin:0;"></h2><button class="ghost small" id="agentReportClose">Close</button></div>
+        <div id="agentReportBody"></div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK TAB -->
+    <div id="tab-feedback" class="tabpane hidden">
+      <div class="card">
+        <h2>Agent feedback</h2>
+        <label for="feedbackCoSelect">Company</label><select id="feedbackCoSelect"></select>
+        <p class="muted" style="margin-top:10px;">Each message is also emailed to the system owner. "Emailed" shows whether that hand-off worked; if the server's email provider is not configured it stays in the email log only.</p>
+        <div style="overflow-x:auto;"><table id="feedbackTable"><thead><tr><th>When</th><th>Agent</th><th>Agency code</th><th>Phone / email</th><th>Type</th><th>Rating</th><th>Message</th><th>Emailed</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="feedbackEmpty"></p>
+      </div>
+    </div>
+
+    <!-- UPDATES TAB -->
+    <div id="tab-updates" class="tabpane hidden">
+      <div class="card">
+        <h2>App updates &amp; control</h2>
+        <label for="updatesCoSelect">Company</label><select id="updatesCoSelect"></select>
+        <p class="muted" style="margin-top:10px;">Installed apps check this every time they are opened (when online) and again at least once every "check interval" while open. Only set "Latest released version" to a version you have already deployed, or agents will be asked to install an update that does not exist yet. Publishing new files is done by deploying them (run <code>node scripts/bump-version.js &lt;version&gt;</code> first); the settings below decide how phones react.</p>
+        <div class="row">
+          <div><label for="updLatest">Latest released version</label><input type="text" id="updLatest" placeholder="e.g. 2026.11.02"></div>
+          <div><label for="updMin">Minimum allowed version</label><input type="text" id="updMin" placeholder="blank = no minimum"></div>
+        </div>
+        <div class="row">
+          <div><label for="updInterval">Check for updates every (days)</label><input type="number" id="updInterval" min="1" max="90" value="7"></div>
+          <div><label for="updOffline">Must reconnect at least every (days, 0 = never)</label><input type="number" id="updOffline" min="0" max="365" value="30"></div>
+        </div>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;"><input type="checkbox" id="updRequire" checked style="width:auto;margin-top:3px;"><span><strong>Require agents to install each new version</strong> — when a newer release is found, the app will not open until it has been installed. Untick to let agents postpone (only a banner is shown).</span></label>
+        <label for="updNotice">Message shown to agents (optional)</label><input type="text" id="updNotice" maxlength="300" placeholder="e.g. Rates were updated — please update.">
+        <button class="primary" id="updSaveBtn">Save update policy</button>
+        <div id="updMsgBox"></div>
+        <p class="muted" style="margin-top:14px;">Agents below the minimum version are blocked until they update. This is enforced inside the app, so it stops ordinary use but cannot stop a technically determined person tampering with their own device.</p>
+      </div>
+    </div>
+
+    <!-- ADMIN USERS TAB -->
+    <div id="tab-admins" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="adminsCoSelect">Working on</label>
+        <select id="adminsCoSelect"></select>
+      </div>
+      <div class="card">
+        <h2>Add an admin for this company</h2>
+        <div class="row">
+          <div><label for="newAdminEmail">Email</label><input type="email" id="newAdminEmail" placeholder="colleague@company.com"></div>
+          <div><label for="newAdminPassword">Temporary password</label><input type="text" id="newAdminPassword" placeholder="At least 8 characters"></div>
+        </div>
+        <p class="muted">They'll sign in with this email and password, then should change it under "My account."</p>
+        <button class="primary" id="createAdminBtn">Create admin</button>
+        <div id="createAdminMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Admins for this company</h2>
+        <table id="adminsTable"><thead><tr><th>Email</th><th>Status</th><th>Last login</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="adminsEmptyMsg"></p>
+      </div>
+      <div class="card">
+        <h2>Outstanding password-reset requests</h2>
+        <p class="muted">A reset link that's been sent (self-service or triggered by a colleague) but not yet used to actually set a new password. Read-only — this doesn't cancel or complete anything, it's just visibility into who's mid-reset.</p>
+        <table id="resetRequestsTable"><thead><tr><th>Admin</th><th>How it started</th><th>Requested</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="resetRequestsEmptyMsg"></p>
+      </div>
+    </div>
+
+    <!-- MY ACCOUNT TAB -->
+    <div id="tab-account" class="tabpane hidden">
+      <div class="card">
+        <h2>Signed in as</h2>
+        <div class="kv"><div class="k">Email</div><div id="meEmail">—</div><div class="k">Role</div><div id="meRole">—</div></div>
+      </div>
+      <div class="card">
+        <h2>Change password</h2>
+        <label for="currentPassword">Current password</label>
+        <input type="password" id="currentPassword" autocomplete="current-password">
+        <label for="newPassword">New password (at least 8 characters)</label>
+        <input type="password" id="newPassword" autocomplete="new-password">
+        <button class="primary" id="changePasswordBtn">Change password</button>
+        <div id="changePasswordMsg"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// Point this at your deployed backend when hosting (see docs/deployment.md).
+// Left relative so the panel works out of the box when served by the same
+// Express app it manages (see backend/server.js static hosting note).
+const API_BASE = window.ADMIN_API_BASE || '';
+
+let state = { token: null, role: null, companyId: null, companies: [], selectedCompanyId: null, selectedLineId: null, scenarios: [] };
+
+function authHeaders(){ return state.token ? { 'Authorization': 'Bearer ' + state.token } : {}; }
+async function api(path, opts){
+  opts = opts || {};
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, authHeaders(), opts.headers || {});
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+  let body = null;
+  try { body = await res.json(); } catch(e){ /* no body */ }
+  if(!res.ok) throw new Error((body && body.error) || ('Request failed: ' + res.status));
+  return body;
+}
+function showMsg(el, text, ok){
+  el.innerHTML = '<div class="msg ' + (ok ? 'ok' : 'err') + '" role="status" aria-live="polite">' + text + '</div>';
+  setTimeout(() => { el.innerHTML = ''; }, 6000);
+}
+
+// ---------- AUTH ----------
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const msgEl = document.getElementById('loginMsg');
+  try{
+    const result = await api('/api/auth/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    state.token = result.token; state.role = result.role; state.companyId = result.companyId;
+    sessionStorage.setItem('adminSession', JSON.stringify(state));
+    enterApp();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+}
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('adminSession');
+  location.reload();
+});
+
+// ---------- FORGOT / RESET PASSWORD ----------
+function showLoginBox(which){
+  document.getElementById('loginBox').classList.toggle('hidden', which !== 'login');
+  document.getElementById('forgotBox').classList.toggle('hidden', which !== 'forgot');
+  document.getElementById('resetBox').classList.toggle('hidden', which !== 'reset');
+}
+document.getElementById('showForgotLink').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('forgot'); });
+document.getElementById('backToLoginLink').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('login'); });
+document.getElementById('backToLoginLink2').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('login'); });
+
+document.getElementById('forgotBtn').addEventListener('click', async () => {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msgEl = document.getElementById('forgotMsg');
+  if(!email) return showMsg(msgEl, 'Enter your email first.', false);
+  try{
+    const result = await api('/api/auth/admin/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+    if(result.devResetToken){
+      // Dev/console mode only — in production this never arrives here, the admin opens the
+      // emailed link instead, which lands back on this page with ?resetEmail=&resetToken=.
+      document.getElementById('resetForEmail').textContent = `Resetting password for ${email} (dev mode — no real email was sent).`;
+      pendingReset = { email, token: result.devResetToken };
+      showLoginBox('reset');
+    } else {
+      showMsg(msgEl, 'If that email has an account, a reset link has been sent.', true);
+    }
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+let pendingReset = null;
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  const newPassword = document.getElementById('resetNewPassword').value;
+  const msgEl = document.getElementById('resetMsg');
+  if(!pendingReset) return showMsg(msgEl, 'Missing reset link details. Request a new one.', false);
+  if(!newPassword || newPassword.length < 8) return showMsg(msgEl, 'New password must be at least 8 characters.', false);
+  try{
+    await api('/api/auth/admin/reset-password', { method: 'POST', body: JSON.stringify({ email: pendingReset.email, token: pendingReset.token, newPassword }) });
+    pendingReset = null;
+    document.getElementById('resetNewPassword').value = '';
+    showLoginBox('login');
+    showMsg(document.getElementById('loginMsg'), 'Password reset. Sign in with your new password.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+(function checkResetLinkInUrl(){
+  const params = new URLSearchParams(location.search);
+  const resetEmail = params.get('resetEmail');
+  const resetToken = params.get('resetToken');
+  if(resetEmail && resetToken){
+    pendingReset = { email: resetEmail, token: resetToken };
+    document.getElementById('resetForEmail').textContent = `Setting a new password for ${resetEmail}.`;
+    showLoginBox('reset');
+    // Clean the token out of the visible URL/history once read.
+    history.replaceState(null, '', location.pathname);
+  }
+})();
+
+(function tryResume(){
+  const saved = sessionStorage.getItem('adminSession');
+  if(saved){ try{ state = JSON.parse(saved); enterApp(); } catch(e){} }
+})();
+
+function enterApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('roleLine').textContent = state.role === 'superadmin' ? 'Superadmin — all companies' : ('Company admin — company #' + state.companyId);
+  if(state.role !== 'superadmin'){
+    document.getElementById('superadminOnlyCreate').classList.add('hidden');
+    document.querySelector('[data-tab="companies"]').classList.add('hidden');
+    switchTab('branding');
+  }
+  loadCompanies();
+  loadMyAccount();
+}
+
+// ---------- TABS ----------
+document.getElementById('topTabs').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+function switchTab(name){
+  document.querySelectorAll('#topTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tabpane').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+  const refresh = { leads: 'loadLeads', leaderboard: 'loadBoard', quotes: 'loadQuotes', sms: 'loadSms' }[name];
+  if(refresh && typeof window[refresh] === 'function') window[refresh]();
+}
+
+// ---------- COMPANIES ----------
+async function loadCompanies(){
+  try{
+    if(state.role === 'superadmin'){
+      state.companies = await api('/api/companies');
+    } else {
+      state.companies = [await api('/api/companies/' + state.companyId)];
+    }
+  } catch(e){ state.companies = []; }
+  renderCompaniesTable();
+  populateCompanySelects();
+}
+function renderCompaniesTable(){
+  const tbody = document.querySelector('#companiesTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('companiesEmptyMsg').textContent = state.companies.length ? '' : 'No companies yet. Create the first one above.';
+  state.companies.forEach(co => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(co.name) + '</td><td>' + escapeHtml(co.slug) + '</td>' +
+      '<td><span class="badge ' + (co.is_active ? 'yes' : 'no') + '">' + (co.is_active ? 'Active' : 'Inactive') + '</span></td>' +
+      '<td><button class="ghost small" data-manage="' + co.id + '">Manage branding</button></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-manage]').forEach(btn => btn.addEventListener('click', () => {
+    document.getElementById('brandingCoSelect').value = btn.dataset.manage;
+    switchTab('branding');
+    onBrandingCompanyChange();
+  }));
+}
+document.getElementById('createCoBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newCoName').value.trim();
+  const slug = document.getElementById('newCoSlug').value.trim().toLowerCase();
+  const msgEl = document.getElementById('createCoMsg');
+  if(!name || !slug) return showMsg(msgEl, 'Name and slug are required.', false);
+  try{
+    await api('/api/companies', { method: 'POST', body: JSON.stringify({ name, slug }) });
+    document.getElementById('newCoName').value = ''; document.getElementById('newCoSlug').value = '';
+    showMsg(msgEl, 'Company created.', true);
+    loadCompanies();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+function populateCompanySelects(){
+  ['brandingCoSelect','productsCoSelect','agentsCoSelect','adminsCoSelect','usageCoSelect','feedbackCoSelect','updatesCoSelect','leadsCoSelect','boardCoSelect','quotesCoSelect','smsCoSelect'].forEach(id => {
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    sel.innerHTML = state.companies.map(co => '<option value="' + co.id + '">' + escapeHtml(co.name) + '</option>').join('');
+    if(current) sel.value = current;
+  });
+  if(state.companies.length){
+    onBrandingCompanyChange();
+    onProductsCompanyChange();
+    onAgentsCompanyChange();
+    onAdminsCompanyChange();
+    onUsageCompanyChange(); onFeedbackCompanyChange(); onUpdatesCompanyChange(); loadLeads(); loadBoard(); loadQuotes(); loadSms();
+  }
+}
+document.getElementById('brandingCoSelect').addEventListener('change', onBrandingCompanyChange);
+document.getElementById('productsCoSelect').addEventListener('change', onProductsCompanyChange);
+document.getElementById('agentsCoSelect').addEventListener('change', onAgentsCompanyChange);
+document.getElementById('adminsCoSelect').addEventListener('change', onAdminsCompanyChange);
+
+// ---------- ADMIN USERS ----------
+function onAdminsCompanyChange(){
+  loadAdmins(document.getElementById('adminsCoSelect').value);
+  loadResetRequests(document.getElementById('adminsCoSelect').value);
+}
+async function loadResetRequests(companyId){
+  if(!companyId) return;
+  let requests = [];
+  try{ requests = await api('/api/companies/' + companyId + '/password-reset-requests'); } catch(e){}
+  const tbody = document.querySelector('#resetRequestsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('resetRequestsEmptyMsg').textContent = requests.length ? '' : 'No outstanding reset requests.';
+  const howMap = { 'admin.password_reset_requested': 'Self-service', 'admin.password_reset_sent_by_colleague': 'Sent by a colleague' };
+  requests.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(r.email || ('admin #' + r.admin_id)) + '</td>' +
+      '<td>' + (howMap[r.action] || escapeHtml(r.action)) + '</td>' +
+      '<td>' + escapeHtml(r.created_at) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+async function loadAdmins(companyId){
+  if(!companyId) return;
+  let admins = [];
+  try{ admins = await api('/api/companies/' + companyId + '/admins'); } catch(e){}
+  const tbody = document.querySelector('#adminsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('adminsEmptyMsg').textContent = admins.length ? '' : 'No admins yet for this company.';
+  admins.forEach(a => {
+    const tr = document.createElement('tr');
+    const isSelf = state.role !== 'superadmin' && String(a.id) === String(state.adminId);
+    tr.innerHTML = '<td>' + escapeHtml(a.email) + (isSelf ? ' <span class="muted">(you)</span>' : '') + '</td>' +
+      '<td><span class="badge ' + (a.is_active ? 'yes' : 'no') + '">' + (a.is_active ? 'Active' : 'Deactivated') + '</span></td>' +
+      '<td>' + (a.last_login_at || 'Never') + '</td>' +
+      '<td>' +
+        (a.is_active ? '<button class="ghost small" data-reset="' + a.id + '" data-email="' + escapeHtml(a.email) + '">Send reset</button> ' : '') +
+        (a.is_active ? '<button class="ghost small" data-deactivate="' + a.id + '">Deactivate</button>' : '') +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-deactivate]').forEach(btn => btn.addEventListener('click', async () => {
+    if(!confirm('Deactivate this admin? They will no longer be able to sign in.')) return;
+    try{
+      await api('/api/companies/' + companyId + '/admins/' + btn.dataset.deactivate, { method: 'PATCH', body: JSON.stringify({ isActive: false }) });
+      loadAdmins(companyId);
+    } catch(e){ alert(e.message); }
+  }));
+  tbody.querySelectorAll('[data-reset]').forEach(btn => btn.addEventListener('click', async () => {
+    try{
+      const result = await api('/api/companies/' + companyId + '/admins/' + btn.dataset.reset + '/send-reset', { method: 'POST' });
+      alert(result.devResetToken
+        ? `Dev mode — no real email sent. Reset link for ${btn.dataset.email}:\n${location.origin}${location.pathname}?resetEmail=${encodeURIComponent(btn.dataset.email)}&resetToken=${result.devResetToken}`
+        : `A reset link was emailed to ${btn.dataset.email}.`);
+      loadResetRequests(companyId);
+    } catch(e){ alert(e.message); }
+  }));
+}
+document.getElementById('createAdminBtn').addEventListener('click', async () => {
+  const companyId = document.getElementById('adminsCoSelect').value;
+  const email = document.getElementById('newAdminEmail').value.trim();
+  const password = document.getElementById('newAdminPassword').value;
+  const msgEl = document.getElementById('createAdminMsg');
+  if(!companyId) return showMsg(msgEl, 'Select a company first.', false);
+  if(!email || !password) return showMsg(msgEl, 'Email and password are required.', false);
+  try{
+    await api('/api/companies/' + companyId + '/admins', { method: 'POST', body: JSON.stringify({ email, password }) });
+    document.getElementById('newAdminEmail').value = ''; document.getElementById('newAdminPassword').value = '';
+    showMsg(msgEl, 'Admin created.', true);
+    loadAdmins(companyId);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- MY ACCOUNT ----------
+async function loadMyAccount(){
+  try{
+    const me = await api('/api/admin/me');
+    state.adminId = me.id;
+    document.getElementById('meEmail').textContent = me.email;
+    document.getElementById('meRole').textContent = me.role === 'superadmin' ? 'Superadmin' : 'Company admin';
+  } catch(e){ /* non-fatal */ }
+}
+document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const msgEl = document.getElementById('changePasswordMsg');
+  if(!currentPassword || !newPassword) return showMsg(msgEl, 'Both fields are required.', false);
+  try{
+    await api('/api/admin/me/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) });
+    document.getElementById('currentPassword').value = ''; document.getElementById('newPassword').value = '';
+    showMsg(msgEl, 'Password changed.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- BRANDING ----------
+function onBrandingCompanyChange(){
+  const id = document.getElementById('brandingCoSelect').value;
+  const co = state.companies.find(c => String(c.id) === String(id));
+  if(!co) return;
+  document.getElementById('brName').value = co.name || '';
+  document.getElementById('brLogo').value = co.logo_url || '';
+  document.getElementById('brPrimary').value = co.color_primary || '#7c2434';
+  document.getElementById('brSecondary').value = co.color_secondary || '#4c1520';
+  document.getElementById('brAccent').value = co.color_accent || '#b8863a';
+  document.getElementById('brFooter').value = co.contact_footer || '';
+  document.getElementById('brDisclaimer').value = co.disclaimer_text || '';
+  document.getElementById('brCurrency').value = co.currency_code || 'KES';
+  document.getElementById('brLocale').value = co.locale || 'en-KE';
+}
+document.getElementById('saveBrandingBtn').addEventListener('click', async () => {
+  const id = document.getElementById('brandingCoSelect').value;
+  const msgEl = document.getElementById('brandingMsg');
+  if(!id) return showMsg(msgEl, 'Select a company first.', false);
+  try{
+    const updated = await api('/api/companies/' + id, { method: 'PATCH', body: JSON.stringify({
+      name: document.getElementById('brName').value.trim(),
+      logoUrl: document.getElementById('brLogo').value.trim(),
+      colorPrimary: document.getElementById('brPrimary').value,
+      colorSecondary: document.getElementById('brSecondary').value,
+      colorAccent: document.getElementById('brAccent').value,
+      contactFooter: document.getElementById('brFooter').value.trim(),
+      disclaimerText: document.getElementById('brDisclaimer').value.trim(),
+      currencyCode: document.getElementById('brCurrency').value.trim().toUpperCase(),
+      locale: document.getElementById('brLocale').value.trim()
+    })});
+    const idx = state.companies.findIndex(c => String(c.id) === String(id));
+    if(idx >= 0) state.companies[idx] = updated;
+    showMsg(msgEl, 'Branding saved.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- PRODUCT LINES ----------
+let selectedEngineType = 'fanaka';
+document.getElementById('engineTypePicker').addEventListener('click', e => {
+  const pill = e.target.closest('.pill'); if(!pill) return;
+  document.querySelectorAll('#engineTypePicker .pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-checked', 'false'); });
+  pill.classList.add('active');
+  pill.setAttribute('aria-checked', 'true');
+  selectedEngineType = pill.dataset.val;
+});
+function onProductsCompanyChange(){
+  state.selectedCompanyId = document.getElementById('productsCoSelect').value;
+  document.getElementById('versionsCard').classList.add('hidden');
+  loadLines();
+}
+async function loadLines(){
+  if(!state.selectedCompanyId) return;
+  let lines = [];
+  try{ lines = await api('/api/companies/' + state.selectedCompanyId + '/product-lines'); } catch(e){}
+  state.lines = lines;
+  const tbody = document.querySelector('#linesTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('linesEmptyMsg').textContent = lines.length ? '' : 'No product lines yet for this company.';
+  lines.forEach(line => {
+    const tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.innerHTML = '<td>' + escapeHtml(line.display_name) + '</td><td>' + line.engine_type + '</td>' +
+      '<td><span class="badge ' + (line.is_active ? 'active' : 'no') + '">' + (line.is_active ? 'Live' : 'No active version') + '</span></td>' +
+      '<td><button class="ghost small" data-open="' + line.id + '">Manage versions</button></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openVersions(btn.dataset.open)));
+}
+document.getElementById('createLineBtn').addEventListener('click', async () => {
+  const displayName = document.getElementById('newLineName').value.trim();
+  const msgEl = document.getElementById('createLineMsg');
+  if(!state.selectedCompanyId) return showMsg(msgEl, 'Select a company first.', false);
+  if(!displayName) return showMsg(msgEl, 'Display name is required.', false);
+  try{
+    await api('/api/companies/' + state.selectedCompanyId + '/product-lines', { method: 'POST', body: JSON.stringify({ engineType: selectedEngineType, displayName }) });
+    document.getElementById('newLineName').value = '';
+    showMsg(msgEl, 'Product line added.', true);
+    loadLines();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+async function openVersions(lineId){
+  state.selectedLineId = lineId;
+  const line = state.lines.find(l => String(l.id) === String(lineId));
+  document.getElementById('versionsCard').classList.remove('hidden');
+  document.getElementById('versionsTitle').textContent = 'Rate data versions — ' + (line ? line.display_name : '');
+  document.getElementById('validatePanel').classList.add('hidden');
+  ed.path = []; ed.pending = []; edPending(); document.getElementById('edDetail').classList.add('hidden'); edLoad();
+  await loadVersions();
+}
+async function loadVersions(){
+  let versions = [];
+  try{ versions = await api('/api/product-lines/' + state.selectedLineId + '/versions'); } catch(e){}
+  const tbody = document.querySelector('#versionsTable tbody');
+  tbody.innerHTML = '';
+  versions.forEach(v => {
+    const status = v.activated_at && !v.superseded_at ? 'Active' : (v.superseded_at ? 'Superseded' : 'Not activated');
+    const isDraft = !!v.change_summary;
+    const stateBadge = isDraft ? (v.approved_at ? '<span class="badge yes">Approved</span>' : (v.has_impact ? '<span class="badge active">Awaiting approval</span>' : '<span class="badge no">Draft — run impact report</span>')) : '<span class="badge ' + (v.validated ? 'yes' : 'no') + '">' + (v.validated ? 'Validated' : 'Not validated') + '</span>';
+    let btns = '';
+    if(isDraft){
+      btns = '<button class="ghost small" data-detail="' + v.id + '">Details</button>';
+      if(status !== 'Active' && status !== 'Superseded'){
+        if(!v.has_impact || !v.validated) btns += ' <button class="ghost small" data-impact="' + v.id + '">Run impact report</button>';
+        else if(!v.approved_at) btns += ' <button class="ghost small" data-impact="' + v.id + '">Re-run report</button> <button class="primary" style="margin:0;padding:5px 10px;font-size:12px;" data-approve="' + v.id + '">Approve</button>';
+        else btns += ' <button class="primary" style="margin:0;padding:5px 10px;font-size:12px;" data-act="' + v.id + '">Activate</button>';
+      }
+    } else {
+      btns = (v.validated ? '' : '<button class="ghost small" data-val="' + v.id + '">Validate</button>') + (v.validated && status !== 'Active' ? ' <button class="primary" style="margin:0;padding:5px 10px;font-size:12px;" data-act="' + v.id + '">Activate</button>' : '');
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>v' + v.version_number + '</td><td>' + escapeHtml(isDraft ? 'Edited: ' + v.change_summary : (v.source_filename || '—')) + '</td><td>' + stateBadge + '</td><td>' + status + '</td><td>' + (v.created_at || '') + '</td><td>' + btns + '</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-detail]').forEach(b => b.addEventListener('click', () => showVersionDetail(b.dataset.detail)));
+  tbody.querySelectorAll('[data-impact]').forEach(b => b.addEventListener('click', () => runImpact(b.dataset.impact)));
+  tbody.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', () => approveVersion(b.dataset.approve)));
+  tbody.querySelectorAll('[data-val]').forEach(btn => btn.addEventListener('click', () => openValidate(btn.dataset.val)));
+  tbody.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', () => activateVersion(btn.dataset.act)));
+}
+document.getElementById('scanWorkbookBtn').addEventListener('click', async () => {
+  const fileInput = document.getElementById('workbookFile');
+  const msgEl = document.getElementById('scanMsg');
+  if(!fileInput.files.length) return showMsg(msgEl, 'Choose a workbook file first.', false);
+  const form = new FormData();
+  form.append('workbook', fileInput.files[0]);
+  try{
+    const res = await fetch(API_BASE + '/api/product-lines/' + state.selectedLineId + '/scan-workbook', {
+      method: 'POST', headers: authHeaders(), body: form
+    });
+    const result = await res.json();
+    if(!res.ok) throw new Error(result.error || 'Scan failed.');
+
+    document.getElementById('scanPreview').classList.remove('hidden');
+    document.getElementById('scanSheetsSummary').innerHTML = result.sheets.map(s =>
+      '<div style="margin-bottom:6px;"><strong>' + escapeHtml(s.name) + '</strong> — ' + s.rowCount + ' rows. Headers: ' + escapeHtml((s.headers || []).join(', ')) + '</div>'
+    ).join('');
+
+    if(!document.getElementById('newVersionFilename').value) document.getElementById('newVersionFilename').value = result.sourceFilename || '';
+
+    if(result.extracted){
+      const draft = { prates: result.extracted.rows, _note: 'Draft from workbook scan — review these rows, then add plan metadata (names, min/max age, min/max term, etc.) that the scanner could not infer, and remove this _note field before saving.' };
+      document.getElementById('newVersionData').value = JSON.stringify(draft, null, 2);
+    }
+    const notesEl = document.getElementById('newVersionNotes');
+    notesEl.value = result.warnings.join(' | ');
+    showMsg(msgEl, result.extracted ? ('Extracted ' + result.extracted.rows.length + ' rate rows as a draft below — review before uploading.') : 'No auto-extractable rate table found — see sheet preview below and build the JSON manually.', !!result.extracted);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+document.getElementById('uploadVersionBtn').addEventListener('click', async () => {
+  const msgEl = document.getElementById('uploadVersionMsg');
+  const sourceFilename = document.getElementById('newVersionFilename').value.trim();
+  const mappingNotes = document.getElementById('newVersionNotes').value.trim();
+  const raw = document.getElementById('newVersionData').value.trim();
+  if(!raw) return showMsg(msgEl, 'Paste the rate data JSON first.', false);
+  let dataJson;
+  try{ dataJson = JSON.parse(raw); } catch(e){ return showMsg(msgEl, 'That is not valid JSON: ' + e.message, false); }
+  try{
+    await api('/api/product-lines/' + state.selectedLineId + '/versions', { method: 'POST', body: JSON.stringify({ dataJson, sourceFilename, mappingNotes }) });
+    document.getElementById('newVersionData').value = '';
+    showMsg(msgEl, 'Version uploaded. It must be validated before it can go live.', true);
+    loadVersions(); loadLines();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+let validatingVersionId = null;
+function openValidate(versionId){
+  validatingVersionId = versionId;
+  document.getElementById('validatePanel').classList.remove('hidden');
+  document.getElementById('validatingVersionLabel').textContent = '#' + versionId;
+  state.scenarios = [];
+  document.getElementById('scenarioRows').innerHTML = '';
+  addScenarioRow();
+  document.getElementById('validatePanel').scrollIntoView({ behavior: 'smooth' });
+}
+document.getElementById('addScenarioBtn').addEventListener('click', addScenarioRow);
+function addScenarioRow(){
+  const idx = state.scenarios.length;
+  state.scenarios.push({ input: '', expected: '', tolerance: 0 });
+  const row = document.createElement('div');
+  row.className = 'scenario-row';
+  row.innerHTML =
+    '<div><label>Input (JSON)<input type="text" class="sc-input" placeholder=\'{"age":35,"term":5,"premium":20000}\'></label></div>' +
+    '<div><label>Expected (JSON, dot-path keys)<input type="text" class="sc-expected" placeholder=\'{"sumAssured":991746}\'></label></div>' +
+    '<div><label>Tolerance (shillings)<input type="number" class="sc-tolerance" value="0"></label></div>' +
+    '<div><button class="ghost small" data-remove="' + idx + '">Remove</button></div>';
+  row.dataset.idx = idx;
+  document.getElementById('scenarioRows').appendChild(row);
+  row.querySelector('[data-remove]').addEventListener('click', () => row.remove());
+}
+document.getElementById('runValidateBtn').addEventListener('click', async () => {
+  const msgEl = document.getElementById('validateMsg');
+  const rows = document.querySelectorAll('#scenarioRows .scenario-row');
+  const scenarios = [];
+  try{
+    for(const row of rows){
+      const input = JSON.parse(row.querySelector('.sc-input').value || '{}');
+      const expected = JSON.parse(row.querySelector('.sc-expected').value || '{}');
+      const tolerance = Number(row.querySelector('.sc-tolerance').value) || 0;
+      scenarios.push({ input, expected, tolerance });
+    }
+  } catch(e){ return showMsg(msgEl, 'A scenario field is not valid JSON: ' + e.message, false); }
+  if(!scenarios.length) return showMsg(msgEl, 'Add at least one scenario from a real printed illustration PDF.', false);
+  try{
+    const result = await api('/api/product-lines/' + state.selectedLineId + '/versions/' + validatingVersionId + '/validate', { method: 'POST', body: JSON.stringify({ scenarios }) });
+    if(result.validated){
+      showMsg(msgEl, 'All scenarios matched. This version can now be activated.', true);
+    } else {
+      const mismatches = result.results.flatMap(r => (r.mismatches||[]).map(m => m.key + ': expected ' + m.expected + ', got ' + m.actual)).concat(result.results.filter(r=>r.error).map(r=>'Error: '+r.error));
+      showMsg(msgEl, 'Did not pass: ' + (mismatches.join('; ') || 'see details'), false);
+    }
+    loadVersions();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+async function activateVersion(versionId){
+  if(!confirm('Activate this version? It will go live immediately and replace the current one.')) return;
+  try{
+    await api('/api/product-lines/' + state.selectedLineId + '/versions/' + versionId + '/activate', { method: 'POST' });
+    loadVersions(); loadLines();
+  } catch(e){ alert(e.message); }
+}
+
+// ---------- AGENTS ----------
+function onAgentsCompanyChange(){
+  const id = document.getElementById('agentsCoSelect').value;
+  loadAgents(id);
+  loadOutbox(id);
+}
+let agentsCache = [];
+async function loadAgents(companyId){
+  if(!companyId) return;
+  try{ agentsCache = await api('/api/companies/' + companyId + '/agents'); } catch(e){ agentsCache = []; }
+  const sel = document.getElementById('agentGroupFilter'), cur = sel.value;
+  const groups = Array.from(new Set(agentsCache.map(a => a.group_name).filter(Boolean))).sort();
+  sel.innerHTML = '<option value="">All groups</option>' + groups.map(g => '<option>' + escapeHtml(g) + '</option>').join('');
+  if(groups.indexOf(cur) >= 0) sel.value = cur;
+  renderAgents(companyId);
+}
+function selectedAgentIds(){ return Array.from(document.querySelectorAll('#agentsTable .agentPick:checked')).map(c => Number(c.dataset.id)); }
+function updateBulkCount(){ document.getElementById('bulkCount').textContent = selectedAgentIds().length + ' selected'; }
+function renderAgents(companyId){
+  const g = document.getElementById('agentGroupFilter').value;
+  const agents = agentsCache.filter(a => !g || a.group_name === g);
+  const tbody = document.querySelector('#agentsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('agentsSelectAll').checked = false;
+  document.getElementById('agentsEmptyMsg').textContent = agents.length ? '' : 'No agents registered yet for this company.';
+  agents.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td><input type="checkbox" class="agentPick" data-id="' + a.id + '" style="width:auto;"></td><td>' + escapeHtml(a.group_name || '—') + '</td><td>' + escapeHtml(a.agency_code || '—') + '</td><td>' + escapeHtml(a.name) + (a.source === 'import' ? ' <span class="badge active">imported</span>' : '') + '</td><td>' + escapeHtml(a.phone) + '</td><td>' + escapeHtml(a.email || '—') + '</td>' +
+      '<td><span class="badge ' + (a.verified ? 'yes' : 'no') + '">' + (a.verified ? 'Verified' : 'Not verified') + '</span></td>' +
+      '<td>' + (a.accepted_terms_at ? a.accepted_terms_at : '—') + '</td><td>' + (a.created_at || '') + '</td>' +
+      '<td><button class="ghost agentToggle">' + (a.is_active === 0 ? 'Enable' : 'Disable') + '</button></td>';
+    if(a.is_active === 0) tr.style.opacity = '.55';
+    tr.querySelector('.agentPick').addEventListener('change', updateBulkCount);
+    tr.querySelector('.agentToggle').addEventListener('click', async () => {
+      const disabling = a.is_active !== 0;
+      if(disabling && !confirm('Disable ' + a.name + '? Their app will stop working and clear itself the next time it goes online.')) return;
+      try{ await api('/api/companies/' + companyId + '/agents/' + a.id, { method:'PATCH', body: JSON.stringify({ isActive: !disabling }) }); loadAgents(companyId); }
+      catch(e){ alert(e.message); }
+    });
+    tbody.appendChild(tr);
+  });
+  updateBulkCount();
+}
+document.getElementById('agentGroupFilter').addEventListener('change', () => renderAgents(document.getElementById('agentsCoSelect').value));
+document.getElementById('agentsSelectAll').addEventListener('change', e => { document.querySelectorAll('#agentsTable .agentPick').forEach(c => { c.checked = e.target.checked; }); updateBulkCount(); });
+async function bulkAct(action){
+  const cid = document.getElementById('agentsCoSelect').value, ids = selectedAgentIds();
+  if(!ids.length) return alert('Tick at least one agent first.');
+  const body = { action, ids };
+  if(action === 'set_group') body.newGroup = document.getElementById('bulkGroupName').value;
+  if(action === 'disable' && !confirm('Disable ' + ids.length + ' agent(s)? Their apps will stop working and clear themselves the next time they go online.')) return;
+  try{ await api('/api/companies/' + cid + '/agents/bulk', { method:'POST', body: JSON.stringify(body) }); loadAgents(cid); }
+  catch(e){ alert(e.message); }
+}
+document.getElementById('bulkEnable').addEventListener('click', () => bulkAct('enable'));
+document.getElementById('bulkDisable').addEventListener('click', () => bulkAct('disable'));
+document.getElementById('bulkSetGroup').addEventListener('click', () => bulkAct('set_group'));
+
+// ---- spreadsheet (CSV) import ----
+function parseCsv(text){
+  text = text.replace(/^﻿/, ''); const rows = []; let row = [], cur = '', q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i + 1] === '"'){ cur += '"'; i++; } else q = false; } else cur += c; }
+    else if(c === '"') q = true;
+    else if(c === ',' || c === ';' || c === '\t'){ row.push(cur); cur = ''; }
+    else if(c === '\n' || c === '\r'){ if(c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; if(row.some(x => x.trim() !== '')) rows.push(row); row = []; }
+    else cur += c;
+  }
+  row.push(cur); if(row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+let importRows = null;
+function csvToAgentRows(text){
+  const grid = parseCsv(text); if(grid.length < 2) throw new Error('The file has no data rows.');
+  const head = grid[0].map(h => h.trim().toLowerCase().replace(/[^a-z]/g, ''));
+  const idx = names => head.findIndex(h => names.indexOf(h) >= 0);
+  const ci = { name: idx(['name', 'fullname', 'agentname', 'agent']), phone: idx(['phone', 'phonenumber', 'mobile', 'msisdn', 'tel']), email: idx(['email', 'emailaddress']), agency: idx(['agencycode', 'agency', 'code', 'agentcode']), group: idx(['group', 'team', 'branch', 'region']) };
+  if(ci.name < 0 || ci.phone < 0) throw new Error('The first row must contain "Name" and "Phone" column headings.');
+  return grid.slice(1).map(r => ({ name: (r[ci.name] || '').trim(), phone: (r[ci.phone] || '').trim(), email: ci.email >= 0 ? (r[ci.email] || '').trim() : '', agencyCode: ci.agency >= 0 ? (r[ci.agency] || '').trim() : '', group: ci.group >= 0 ? (r[ci.group] || '').trim() : '' }));
+}
+function renderImportResult(out){
+  const bad = out.results.filter(r => r.status === 'invalid' || r.status === 'duplicate');
+  document.getElementById('importResult').innerHTML = '<p><strong>' + out.created + '</strong> new, <strong>' + out.updated + '</strong> already registered (details filled in), <strong>' + out.invalid + '</strong> with problems, <strong>' + out.duplicates + '</strong> repeated in the file.</p>' +
+    (bad.length ? '<table><thead><tr><th>Row</th><th>Name</th><th>Phone</th><th>Problem</th></tr></thead><tbody>' + bad.slice(0, 100).map(r => '<tr><td>' + (r.line + 1) + '</td><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.phone) + '</td><td>' + escapeHtml(r.error) + '</td></tr>').join('') + '</tbody></table>' : '');
+}
+document.getElementById('importTemplateLink').addEventListener('click', async e => {
+  e.preventDefault();
+  const res = await fetch(API_BASE + '/api/companies/' + document.getElementById('agentsCoSelect').value + '/agents/import-template', { headers: authHeaders() });
+  const url = URL.createObjectURL(await res.blob()); const a = document.createElement('a'); a.href = url; a.download = 'agents-import-template.csv'; a.click(); URL.revokeObjectURL(url);
+});
+document.getElementById('importPreviewBtn').addEventListener('click', async () => {
+  const f = document.getElementById('importFile').files[0], msg = document.getElementById('importMsg');
+  if(!f) return showMsg(msg, 'Choose a CSV file first.', false);
+  try{
+    importRows = csvToAgentRows(await f.text());
+    const out = await api('/api/companies/' + document.getElementById('agentsCoSelect').value + '/agents/import', { method:'POST', body: JSON.stringify({ rows: importRows, dryRun: true }) });
+    renderImportResult(out);
+    document.getElementById('importRunBtn').style.display = (out.created + out.updated) > 0 ? '' : 'none';
+    showMsg(msg, 'Checked ' + importRows.length + ' rows. Nothing has been saved yet.', true);
+  } catch(e){ importRows = null; document.getElementById('importRunBtn').style.display = 'none'; showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('importRunBtn').addEventListener('click', async () => {
+  if(!importRows) return; const msg = document.getElementById('importMsg'), cid = document.getElementById('agentsCoSelect').value;
+  try{
+    const out = await api('/api/companies/' + cid + '/agents/import', { method:'POST', body: JSON.stringify({ rows: importRows }) });
+    renderImportResult(out); document.getElementById('importRunBtn').style.display = 'none'; importRows = null;
+    showMsg(msg, 'Imported. ' + out.created + ' new agent(s) added.', true); loadAgents(cid);
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+
+async function loadOutbox(companyId){
+  if(!companyId) return;
+  let msgs = [];
+  try{ msgs = await api('/api/companies/' + companyId + '/sms-outbox'); } catch(e){}
+  const tbody = document.querySelector('#outboxTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('outboxEmptyMsg').textContent = msgs.length ? '' : 'No messages sent yet.';
+  msgs.forEach(m => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(m.phone) + '</td><td>' + escapeHtml(m.message) + '</td><td>' + escapeHtml(m.provider) + '</td>' +
+      '<td><span class="badge ' + (m.status === 'sent' ? 'yes' : 'no') + '">' + escapeHtml(m.status) + '</span></td><td>' + (m.created_at || '') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------- USAGE / FEEDBACK / UPDATES ----------
+function usageCo(){ return document.getElementById('usageCoSelect').value; }
+function usageDays(){ return document.getElementById('usageDays').value; }
+function onUsageCompanyChange(){ loadUsage(); }
+document.getElementById('usageCoSelect').addEventListener('change', onUsageCompanyChange);
+document.getElementById('usageDays').addEventListener('change', loadUsage);
+document.getElementById('usageRefreshBtn').addEventListener('click', loadUsage);
+function tile(n, l){ return '<div class="tile"><div class="n">' + escapeHtml(n) + '</div><div class="l">' + escapeHtml(l) + '</div></div>'; }
+function bars(obj, emptyText){
+  const entries = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]);
+  if(!entries.length) return '<p class="muted">' + emptyText + '</p>';
+  const max = Math.max.apply(null, entries.map(e => e[1])) || 1;
+  return entries.map(([k, v]) => '<div class="barrow"><div class="bl" title="' + escapeHtml(k) + '">' + escapeHtml(k) + '</div><div class="bar" style="width:' + Math.round(v / max * 160) + 'px"></div><div class="bn">' + v + '</div></div>').join('');
+}
+async function loadUsage(){
+  const id = usageCo(); if(!id) return;
+  const days = usageDays();
+  let sum = null, agents = [];
+  try{ sum = await api('/api/companies/' + id + '/usage/summary?days=' + days); agents = await api('/api/companies/' + id + '/usage/agents?days=' + days); }
+  catch(e){ return showMsg(document.getElementById('usageMsg'), escapeHtml(e.message), false); }
+  const t = sum.totals, a = sum.agents;
+  document.getElementById('usageTiles').innerHTML =
+    tile(a.total, 'Registered agents') + tile(a.active, 'Active in period') + tile(a.new, 'New in period') + tile(a.inactive, 'Inactive in period') +
+    tile(t.appOpens, 'App opens') + tile(t.calculations, 'Calculations') + tile(t.illustrationsPrinted, 'Illustrations printed') + tile(t.diagnosesCompleted, 'Needs diagnoses') +
+    tile(sum.agentsInstalledAsApp + ' / ' + sum.agentsWithKnownVersion, 'Installed as app') + tile(sum.agentsOnOutdatedVersion, 'On an older version') +
+    tile(t.errors, 'Errors') + tile(sum.feedback.count + (sum.feedback.averageRating ? ' (' + sum.feedback.averageRating + '/5)' : ''), 'Feedback received');
+  document.getElementById('usageProducts').innerHTML = bars(sum.products, 'No calculations in this period.') +
+    (Object.keys(sum.diagnosisTopProduct).length ? '<h3>Top recommendation from needs diagnosis</h3>' + bars(sum.diagnosisTopProduct, '') : '');
+  document.getElementById('usageVersions').innerHTML = bars(sum.versions, 'No version data yet.') +
+    (sum.latestVersion ? '<p class="muted">Latest released: ' + escapeHtml(sum.latestVersion) + (sum.minVersion ? ' &middot; minimum allowed: ' + escapeHtml(sum.minVersion) : '') + '</p>' : '');
+  document.getElementById('usageErrors').innerHTML = (sum.helpMisses && sum.helpMisses.length ? '<h3>Help searches with no result (' + sum.helpOpens + ' help opens)</h3><p class="muted">Terms agents looked for and did not find — add them to help-content.js.</p>' + sum.helpMisses.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.query) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '') + (sum.topErrors.length ? '<h3>Top errors</h3>' + sum.topErrors.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.message) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '');
+  const dayMap = {}; sum.daily.forEach(d => { dayMap[d.day] = d.activeAgents; });
+  document.getElementById('usageDaily').innerHTML = sum.daily.length ? bars(dayMap, '').replace(/class="bl"/g, 'class="bl" style="width:90px"') + '<p class="muted">Active agents per day.</p>' : '<p class="muted">No activity in this period.</p>';
+  const tbody = document.querySelector('#usageAgentsTable tbody'); tbody.innerHTML = '';
+  document.getElementById('usageAgentsEmpty').textContent = agents.length ? '' : 'No agents registered yet.';
+  agents.forEach(ag => {
+    const tr = document.createElement('tr'); tr.className = 'clickable';
+    tr.innerHTML = '<td>' + escapeHtml(ag.agencyCode || '—') + '</td><td>' + escapeHtml(ag.name) + '</td><td>' + escapeHtml(ag.phone) + '</td><td>' + escapeHtml(ag.email || '—') + '</td><td>' + escapeHtml(ag.lastSeen || 'never') + '</td><td>' + ag.activeDays + '</td><td>' + ag.calculations + '</td><td>' + ag.printed + '</td><td>' + ag.diagnoses + '</td><td>' + escapeHtml(ag.appVersion || '—') + '</td><td>' + (ag.installedAsApp ? 'Yes' : 'No') + '</td>';
+    tr.addEventListener('click', () => openAgentReport(ag.id));
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('usageCsvBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('usageMsg');
+  try{
+    const res = await fetch(API_BASE + '/api/companies/' + usageCo() + '/usage/agents?days=' + usageDays() + '&format=csv', { headers: authHeaders() });
+    if(!res.ok) throw new Error('Download failed: ' + res.status);
+    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'agents-usage-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('usageEmailBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('usageMsg');
+  try{ const r = await api('/api/companies/' + usageCo() + '/usage/email-report?days=' + usageDays(), { method: 'POST', body: '{}' }); showMsg(msg, 'Summary emailed to ' + escapeHtml(r.to) + '.', true); }
+  catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('agentReportClose').addEventListener('click', () => document.getElementById('agentReportCard').classList.add('hidden'));
+async function openAgentReport(agentId){
+  let r; try{ r = await api('/api/companies/' + usageCo() + '/agents/' + agentId + '/usage?days=' + Math.max(Number(usageDays()), 90)); }
+  catch(e){ return showMsg(document.getElementById('usageMsg'), escapeHtml(e.message), false); }
+  const card = document.getElementById('agentReportCard'); card.classList.remove('hidden');
+  document.getElementById('agentReportTitle').textContent = r.agent.name + ' — ' + r.agent.phone;
+  const t = r.totals;
+  document.getElementById('agentReportBody').innerHTML =
+    '<div class="kv" style="margin:10px 0;"><div class="k">Agency code</div><div>' + escapeHtml(r.agent.agencyCode || '—') + '</div><div class="k">Email</div><div>' + escapeHtml(r.agent.email || '—') + '</div><div class="k">Registered</div><div>' + escapeHtml(r.agent.registered) + '</div><div class="k">Terms accepted</div><div>' + escapeHtml(r.agent.acceptedTerms || '—') + '</div><div class="k">First / last seen</div><div>' + escapeHtml(r.firstSeen || '—') + ' &rarr; ' + escapeHtml(r.lastSeen || '—') + '</div><div class="k">Sessions (all time)</div><div>' + r.sessionsAllTime + '</div><div class="k">Versions used</div><div>' + (r.versions.map(v => escapeHtml(v.app_version) + (v.display_mode ? ' (' + escapeHtml(v.display_mode) + ')' : '')).join(', ') || '—') + '</div></div>' +
+    '<div class="tiles">' + tile(t.appOpens, 'App opens') + tile(t.calculations, 'Calculations') + tile(t.printed, 'Printed') + tile(t.diagnoses, 'Diagnoses') + tile(t.errors, 'Errors') + '</div>' +
+    '<h3>Calculations by product (last ' + r.periodDays + ' days)</h3>' + bars(r.products, 'None yet.') +
+    '<h3>Recent activity</h3><div style="overflow-x:auto;"><table><thead><tr><th>When (UTC)</th><th>Event</th><th>Details</th><th>Version</th></tr></thead><tbody>' +
+    r.recent.map(e => '<tr><td>' + escapeHtml(e.at) + '</td><td>' + escapeHtml(e.event) + '</td><td>' + escapeHtml(e.props ? Object.entries(e.props).map(([k, v]) => k + ': ' + v).join(', ') : '') + '</td><td>' + escapeHtml(e.appVersion || '') + '</td></tr>').join('') + '</tbody></table></div>' +
+    (r.feedback.length ? '<h3>Feedback from this agent</h3>' + r.feedback.map(f => '<p><strong>' + escapeHtml(f.category) + (f.rating ? ' · ' + f.rating + '/5' : '') + '</strong> <span class="muted">' + escapeHtml(f.created_at) + '</span><br>' + escapeHtml(f.message) + '</p>').join('') : '');
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+
+function onFeedbackCompanyChange(){ loadFeedback(); }
+document.getElementById('feedbackCoSelect').addEventListener('change', onFeedbackCompanyChange);
+async function loadFeedback(){
+  const id = document.getElementById('feedbackCoSelect').value; if(!id) return;
+  let rows = []; try{ rows = await api('/api/companies/' + id + '/feedback'); } catch(e){}
+  const tbody = document.querySelector('#feedbackTable tbody'); tbody.innerHTML = '';
+  document.getElementById('feedbackEmpty').textContent = rows.length ? '' : 'No feedback received yet.';
+  rows.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(f.created_at) + '</td><td>' + escapeHtml(f.agent_name || '—') + '</td><td>' + escapeHtml(f.agent_agency_code || '—') + '</td><td>' + escapeHtml(f.agent_phone || '') + (f.agent_email ? '<br>' + escapeHtml(f.agent_email) : '') + '</td><td>' + escapeHtml(f.category) + '</td><td>' + (f.rating ? f.rating + '/5' : '—') + '</td><td style="white-space:pre-wrap;max-width:360px;">' + escapeHtml(f.message) + '</td><td><span class="badge ' + (f.emailed_status === 'sent' ? 'yes' : 'no') + '">' + escapeHtml(f.emailed_status) + '</span></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function onUpdatesCompanyChange(){ loadUpdates(); }
+document.getElementById('updatesCoSelect').addEventListener('change', onUpdatesCompanyChange);
+async function loadUpdates(){
+  const id = document.getElementById('updatesCoSelect').value; if(!id) return;
+  try{
+    const c = await api('/api/companies/' + id + '/app-control');
+    document.getElementById('updLatest').value = c.latestVersion || '';
+    document.getElementById('updMin').value = c.minVersion || '';
+    document.getElementById('updInterval').value = c.checkIntervalDays;
+    document.getElementById('updOffline').value = c.maxOfflineDays;
+    document.getElementById('updNotice').value = c.notice || '';
+    document.getElementById('updRequire').checked = c.requireUpdate !== false;
+  } catch(e){}
+}
+document.getElementById('updSaveBtn').addEventListener('click', async () => {
+  const id = document.getElementById('updatesCoSelect').value; const msg = document.getElementById('updMsgBox');
+  const min = document.getElementById('updMin').value.trim();
+  if(min && !confirm('Agents on a version older than ' + min + ' will be blocked until they update. Continue?')) return;
+  try{
+    await api('/api/companies/' + id + '/app-control', { method: 'PUT', body: JSON.stringify({
+      latestVersion: document.getElementById('updLatest').value.trim() || null, minVersion: min || null,
+      checkIntervalDays: Number(document.getElementById('updInterval').value), maxOfflineDays: Number(document.getElementById('updOffline').value),
+      requireUpdate: document.getElementById('updRequire').checked, notice: document.getElementById('updNotice').value }) });
+    showMsg(msg, 'Update policy saved. Apps pick it up on their next check.', true);
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- RATES EDITOR ----------
+const ed = { path: [], pending: [] };
+async function edLoad(){
+  if(!state.selectedLineId) return;
+  const box = document.getElementById('edList'), crumbs = document.getElementById('edCrumbs');
+  try{
+    const out = await api('/api/product-lines/' + state.selectedLineId + '/data-outline?path=' + encodeURIComponent(ed.path.join('.')));
+    crumbs.innerHTML = '<span class="muted">Editing a copy of: ' + escapeHtml(out.base) + '</span> &nbsp; <a href="#" data-p="">Top</a>' + ed.path.map((k, i) => ' / <a href="#" data-p="' + escapeHtml(ed.path.slice(0, i + 1).join('.')) + '">' + escapeHtml(k) + '</a>').join('');
+    crumbs.querySelectorAll('a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); ed.path = a.dataset.p ? a.dataset.p.split('.') : []; edLoad(); }));
+    box.innerHTML = '<table style="margin:0;"><tbody>' + out.children.map(c => {
+      const full = ed.path.concat(c.key).join('.');
+      if(c.type === 'object' || c.type === 'array') return '<tr><td style="width:35%"><a href="#" data-open="' + escapeHtml(c.key) + '">' + escapeHtml(c.key) + '</a></td><td class="muted">' + c.type + ' (' + c.length + ') ' + escapeHtml(c.preview || '') + '</td><td></td></tr>';
+      return '<tr><td style="width:35%">' + escapeHtml(c.key) + '</td><td><strong>' + escapeHtml(String(c.value)) + '</strong></td><td style="width:200px;white-space:nowrap;"><input type="text" data-new="' + escapeHtml(full) + '" data-old="' + escapeHtml(String(c.value)) + '" placeholder="new value" style="width:100px;display:inline-block;margin:0;"> <button class="ghost small" data-add="' + escapeHtml(full) + '">Add</button></td></tr>';
+    }).join('') + '</tbody></table>' + (out.truncated ? '<p class="muted" style="padding:6px 10px;">Showing the first entries only.</p>' : '');
+    box.querySelectorAll('[data-open]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); ed.path = ed.path.concat(a.dataset.open); edLoad(); }));
+    box.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => {
+      const inp = box.querySelector('[data-new="' + CSS.escape(b.dataset.add) + '"]'), v = inp.value.trim();
+      if(v === '') return;
+      ed.pending = ed.pending.filter(p => p.path !== b.dataset.add).concat({ path: b.dataset.add, value: v, from: inp.dataset.old });
+      inp.value = ''; edPending();
+    }));
+  } catch(e){ box.innerHTML = '<p class="muted" style="padding:8px;">' + escapeHtml(e.message) + '</p>'; }
+}
+function edPending(){
+  const el = document.getElementById('edPending');
+  el.innerHTML = ed.pending.length ? '<strong>Changes in this draft</strong><table><tbody>' + ed.pending.map((p, i) => '<tr><td>' + escapeHtml(p.path) + '</td><td>' + escapeHtml(p.from) + ' &rarr; <strong>' + escapeHtml(p.value) + '</strong></td><td><a href="#" data-rm="' + i + '">remove</a></td></tr>').join('') + '</tbody></table>' : '';
+  el.querySelectorAll('[data-rm]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); ed.pending.splice(Number(a.dataset.rm), 1); edPending(); }));
+}
+document.getElementById('edDraftBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('edMsg');
+  if(!ed.pending.length) return showMsg(msg, 'Add at least one change first.', false);
+  try{
+    const out = await api('/api/product-lines/' + state.selectedLineId + '/versions/draft', { method:'POST', body: JSON.stringify({ summary: document.getElementById('edSummary').value, changes: ed.pending.map(p => ({ path: p.path, value: p.value })) }) });
+    ed.pending = []; edPending(); document.getElementById('edSummary').value = '';
+    showMsg(msg, 'Draft v' + out.versionNumber + ' created. Now run the impact report from the versions table below.', true);
+    loadVersions();
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+function renderImpact(imp){
+  const rows = (imp.rows || []).filter(r => r.changedFigures > 0 || r.error).slice(0, 12);
+  return '<p><strong>' + imp.scenariosChanged + '</strong> of ' + imp.scenariosCompared + ' sample quotes change; <strong>' + imp.scenariosWithErrors + '</strong> fail to calculate. Compared with ' + escapeHtml(imp.comparedWith || 'current rates') + '.</p>' +
+    (rows.length ? '<table><thead><tr><th>Sample quote</th><th>Biggest changes</th></tr></thead><tbody>' + rows.map(r => '<tr><td>' + escapeHtml(Object.entries(r.input).filter(([k, v]) => typeof v !== 'object').map(([k, v]) => k + ': ' + v).join(', ')) + '</td><td>' + (r.error ? '<span style="color:var(--err)">' + escapeHtml(r.error) + '</span>' : r.topChanges.map(c => escapeHtml(c.key) + ' ' + Math.round(c.from).toLocaleString() + ' &rarr; ' + (c.to == null ? 'n/a' : Math.round(c.to).toLocaleString()) + (c.pct != null ? ' (' + (c.pct > 0 ? '+' : '') + c.pct + '%)' : '')).join('<br>')) + '</td></tr>').join('') + '</tbody></table>' : '<p class="muted">No sample figure changes.</p>');
+}
+async function runImpact(id){
+  const box = document.getElementById('edDetail'); box.classList.remove('hidden'); box.innerHTML = '<p class="muted">Re-pricing sample quotes…</p>';
+  try{ const imp = await api('/api/product-lines/' + state.selectedLineId + '/versions/' + id + '/impact', { method:'POST' }); box.innerHTML = '<h3>Impact report</h3>' + renderImpact(imp) + (imp.ok ? '<p class="muted">No errors found. A reviewer can now approve this version.</p>' : '<p style="color:var(--err)">This version has errors and cannot be approved.</p>'); loadVersions(); }
+  catch(e){ box.innerHTML = '<p style="color:var(--err)">' + escapeHtml(e.message) + '</p>'; }
+}
+async function showVersionDetail(id){
+  const box = document.getElementById('edDetail'); box.classList.remove('hidden');
+  try{
+    const d = await api('/api/product-lines/' + state.selectedLineId + '/versions/' + id + '/detail');
+    box.innerHTML = '<h3>Version ' + d.versionNumber + ' — ' + escapeHtml(d.summary || '') + '</h3><table><thead><tr><th>Value</th><th>Change</th></tr></thead><tbody>' + d.changes.map(c => '<tr><td>' + escapeHtml(c.path) + '</td><td>' + escapeHtml(String(c.from)) + ' &rarr; <strong>' + escapeHtml(String(c.to)) + '</strong></td></tr>').join('') + '</tbody></table>' + (d.impact ? '<h3>Impact report</h3>' + renderImpact(d.impact) : '<p class="muted">Impact report not run yet.</p>');
+  } catch(e){ box.innerHTML = '<p style="color:var(--err)">' + escapeHtml(e.message) + '</p>'; }
+}
+async function approveVersion(id){
+  if(!confirm('Approve this rate change? Once approved it can be activated and agents will receive the new rates.')) return;
+  try{ await api('/api/product-lines/' + state.selectedLineId + '/versions/' + id + '/approve', { method:'POST' }); loadVersions(); }
+  catch(e){ alert(e.message); }
+}
+
+// ---------- LEADS ----------
+function onTabCo(id, fn){ document.getElementById(id).addEventListener('change', fn); }
+async function loadLeads(){
+  const cid = document.getElementById('leadsCoSelect').value; if(!cid) return;
+  const st = document.getElementById('leadsStatus').value; let rows = [];
+  try{ rows = await api('/api/companies/' + cid + '/leads' + (st ? '?status=' + st : '')); } catch(e){}
+  const tb = document.querySelector('#leadsTable tbody'); tb.innerHTML = '';
+  document.getElementById('leadsEmpty').textContent = rows.length ? '' : 'No leads yet.';
+  rows.forEach(l => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(l.createdAt) + '</td><td>' + escapeHtml(l.clientName) + '</td><td>' + escapeHtml([l.clientPhone, l.clientEmail].filter(Boolean).join(' · ')) + '</td><td>' + escapeHtml(l.product) + '</td><td>' + escapeHtml(l.agentName) + (l.agencyCode ? ' (' + escapeHtml(l.agencyCode) + ')' : '') + '</td><td>' + escapeHtml(l.needsSummary) + (l.note ? '<br><em>' + escapeHtml(l.note) + '</em>' : '') + '</td><td><select data-lead="' + l.id + '" style="width:auto;">' + ['new', 'contacted', 'quoted', 'won', 'lost'].map(x => '<option' + (x === l.status ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></td>';
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-lead]').forEach(sel => sel.addEventListener('change', async () => { try{ await api('/api/companies/' + cid + '/leads/' + sel.dataset.lead, { method:'PATCH', body: JSON.stringify({ status: sel.value }) }); } catch(e){ alert(e.message); loadLeads(); } }));
+}
+async function downloadCsv(path, name){
+  const res = await fetch(API_BASE + path, { headers: authHeaders() }); if(!res.ok) return alert('Download failed.');
+  const url = URL.createObjectURL(await res.blob()); const a = document.createElement('a'); a.href = url; a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click(); URL.revokeObjectURL(url);
+}
+onTabCo('leadsCoSelect', loadLeads); document.getElementById('leadsStatus').addEventListener('change', loadLeads);
+document.getElementById('leadsCsvBtn').addEventListener('click', () => downloadCsv('/api/companies/' + document.getElementById('leadsCoSelect').value + '/leads?format=csv', 'leads'));
+
+// ---------- LEADERBOARD ----------
+async function loadBoard(){
+  const cid = document.getElementById('boardCoSelect').value; if(!cid) return;
+  try{ const t = await api('/api/companies/' + cid + '/targets'); document.getElementById('tgCalcs').value = t.calcs; document.getElementById('tgPrints').value = t.prints; document.getElementById('tgLeads').value = t.leads; } catch(e){}
+  let out = { rows: [] }; try{ out = await api('/api/companies/' + cid + '/leaderboard?period=' + document.getElementById('boardPeriod').value); } catch(e){}
+  const tb = document.querySelector('#boardTable tbody'); tb.innerHTML = '';
+  document.getElementById('boardEmpty').textContent = out.rows.length ? '' : 'No verified agents yet.';
+  out.rows.forEach(r => { const tr = document.createElement('tr'); tr.innerHTML = '<td>' + r.rank + '</td><td>' + escapeHtml(r.name) + (r.agencyCode ? ' (' + escapeHtml(r.agencyCode) + ')' : '') + '</td><td>' + escapeHtml(r.group || '—') + '</td><td>' + r.calcs + '</td><td>' + r.prints + '</td><td>' + r.leads + '</td><td><strong>' + r.score + '</strong></td><td>' + (r.targetPct == null ? '—' : r.targetPct + '%') + '</td>'; tb.appendChild(tr); });
+}
+onTabCo('boardCoSelect', loadBoard); document.getElementById('boardPeriod').addEventListener('change', loadBoard);
+document.getElementById('tgSaveBtn').addEventListener('click', async () => {
+  const cid = document.getElementById('boardCoSelect').value, msg = document.getElementById('tgMsg');
+  try{ await api('/api/companies/' + cid + '/targets', { method:'PUT', body: JSON.stringify({ calcs: document.getElementById('tgCalcs').value || 0, prints: document.getElementById('tgPrints').value || 0, leads: document.getElementById('tgLeads').value || 0 }) }); showMsg(msg, 'Targets saved.', true); loadBoard(); }
+  catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('boardCsvBtn').addEventListener('click', () => downloadCsv('/api/companies/' + document.getElementById('boardCoSelect').value + '/leaderboard?format=csv&period=' + document.getElementById('boardPeriod').value, 'leaderboard'));
+
+// ---------- QUOTE TRAIL ----------
+async function loadQuotes(){
+  const cid = document.getElementById('quotesCoSelect').value; if(!cid) return; let rows = [];
+  try{ rows = await api('/api/companies/' + cid + '/quotes?days=' + document.getElementById('quotesDays').value); } catch(e){}
+  const tb = document.querySelector('#quotesTable tbody'); tb.innerHTML = '';
+  document.getElementById('quotesEmpty').textContent = rows.length ? '' : 'Nothing recorded in this period.';
+  rows.slice(0, 300).forEach(q => { const tr = document.createElement('tr'); tr.innerHTML = '<td>' + escapeHtml(q.when) + '</td><td>' + escapeHtml(q.agent) + '</td><td>' + escapeHtml(q.product) + '</td><td>' + escapeHtml(q.action) + '</td><td>' + escapeHtml(q.ratesVersion) + '</td><td>' + escapeHtml(q.appVersion) + '</td><td>' + escapeHtml(q.language) + '</td><td style="font-size:11px;max-width:320px;word-break:break-word;">' + escapeHtml(q.inputs) + '</td>'; tb.appendChild(tr); });
+}
+onTabCo('quotesCoSelect', loadQuotes); document.getElementById('quotesDays').addEventListener('change', loadQuotes);
+document.getElementById('quotesCsvBtn').addEventListener('click', () => downloadCsv('/api/companies/' + document.getElementById('quotesCoSelect').value + '/quotes?format=csv&days=' + document.getElementById('quotesDays').value, 'quote-trail'));
+
+// ---------- LOGIN & SMS ----------
+async function loadSms(){
+  const cid = document.getElementById('smsCoSelect').value; if(!cid) return;
+  try{
+    const s = await api('/api/companies/' + cid + '/sms-settings');
+    document.getElementById('smsEnabled').checked = s.enabled; document.getElementById('smsUser').value = s.username; document.getElementById('smsSender').value = s.senderId; document.getElementById('smsFallback').checked = s.emailFallback;
+    document.getElementById('smsKey').value = ''; document.getElementById('smsKeyState').textContent = s.apiKeySaved ? '(saved)' : '(not saved yet)';
+    document.getElementById('smsActive').textContent = s.activeProvider === 'africastalking' ? 'Live: codes are sent as real SMS.' : 'Off: codes are only logged (test mode).';
+  } catch(e){}
+}
+onTabCo('smsCoSelect', loadSms);
+document.getElementById('smsSaveBtn').addEventListener('click', async () => {
+  const cid = document.getElementById('smsCoSelect').value, msg = document.getElementById('smsMsg');
+  if(document.getElementById('smsEnabled').checked && !confirm('Switch live SMS on? Login codes will be sent as real, billable SMS messages.')) return;
+  try{ await api('/api/companies/' + cid + '/sms-settings', { method:'PUT', body: JSON.stringify({ enabled: document.getElementById('smsEnabled').checked, username: document.getElementById('smsUser').value, apiKey: document.getElementById('smsKey').value, senderId: document.getElementById('smsSender').value, emailFallback: document.getElementById('smsFallback').checked }) }); showMsg(msg, 'Saved.', true); loadSms(); }
+  catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('smsTestBtn').addEventListener('click', async () => {
+  const cid = document.getElementById('smsCoSelect').value, msg = document.getElementById('smsTestMsg');
+  try{ const r = await api('/api/companies/' + cid + '/sms-settings/test', { method:'POST', body: JSON.stringify({ phone: document.getElementById('smsTestPhone').value }) }); showMsg(msg, escapeHtml(r.note), true); }
+  catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+</script>
+<script src="/custom-products.js"></script>
+<script src="/admin-extras.js"></script>
+</body>
+</html>
